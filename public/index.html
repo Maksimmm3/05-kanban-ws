@@ -2,10 +2,42 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kanban WS</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .status {
+        color: #666;
+      }
+    </style>
   </head>
   <body>
     <h1>Kanban WS</h1>
-    <p>Scaffold in progress.</p>
+    <p class="status" id="status">Connecting…</p>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const ws = new WebSocket(`ws://${location.host}`);
+
+      ws.addEventListener('open', () => {
+        statusEl.textContent = 'Connected';
+        statusEl.style.color = 'green';
+      });
+
+      ws.addEventListener('close', () => {
+        statusEl.textContent = 'Disconnected';
+        statusEl.style.color = 'red';
+      });
+
+      ws.addEventListener('error', () => {
+        statusEl.textContent = 'Error';
+        statusEl.style.color = 'red';
+      });
+    </script>
   </body>
 </html>
