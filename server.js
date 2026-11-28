@@ -36,6 +36,29 @@ server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 
+function sendTextFrame(socket, text) {
+  const payload = Buffer.from(text, 'utf8');
+  const length = payload.length;
+
+  if (length >= 65536) {
+    throw new Error('Payload too large for simple frame implementation');
+  }
+
+  let header;
+  if (length < 126) {
+    header = Buffer.alloc(2);
+    header[0] = 0x81; // FIN + text opcode
+    header[1] = length;
+  } else {
+    header = Buffer.alloc(4);
+    header[0] = 0x81;
+    header[1] = 126;
+    header.writeUInt16BE(length, 2);
+  }
+
+  socket.write(Buffer.concat([header, payload]));
+}
+
 server.on('upgrade', (req, socket) => {
   const key = req.headers['sec-websocket-key'];
   if (!key) {
@@ -57,6 +80,7 @@ server.on('upgrade', (req, socket) => {
   );
 
   console.log('WebSocket client connected');
+  sendTextFrame(socket, 'Connected to Kanban WS server');
 
   socket.on('close', () => console.log('WebSocket client disconnected'));
   socket.on('error', () => socket.destroy());

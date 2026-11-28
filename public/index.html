@@ -14,19 +14,35 @@
       .status {
         color: #666;
       }
+      #log {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+        min-height: 100px;
+        font-family: monospace;
+        font-size: 14px;
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
     <h1>Kanban WS</h1>
     <p class="status" id="status">Connecting…</p>
+    <div id="log"></div>
 
     <script>
       const statusEl = document.getElementById('status');
+      const logEl = document.getElementById('log');
       const ws = new WebSocket(`ws://${location.host}`);
 
       ws.addEventListener('open', () => {
         statusEl.textContent = 'Connected';
         statusEl.style.color = 'green';
+      });
+
+      ws.addEventListener('message', (event) => {
+        logEl.textContent += `> ${event.data}\n`;
       });
 
       ws.addEventListener('close', () => {
